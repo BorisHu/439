@@ -1,8 +1,6 @@
 var serial; // variable to hold an instance of the serialport library
 var portName = '/dev/cu.usbmodem142401'; //rename to the name of your port
 var dataarray = []; //some data coming in over serial!
-var brightness = 0;
-let text = "Alert";
 
 function setup() {
   serial = new p5.SerialPort();       // make a new instance of the serialport library
@@ -20,8 +18,8 @@ function setup() {
   noFill();
   stroke(color(0, 255, 0));
   
-  var button = createButton(text);
-  button.mousePressed(keyPressed);
+  var button = createButton("Alert"); //create button
+  button.mousePressed(keyPressed); // call keypressed function
   button.position(windowWidth/2 - 75, windowHeight/2 - 250);
   button.size(150,50);
 }
@@ -60,36 +58,40 @@ function printList(portList) {
        if (typeof newarray == 'object') {
          dataarray = newarray;
        }
-      //  console.log("got back " + datastring);
        } catch(err) {
-       // got something that's not a json
      }
    } 
  }
 
  function keyPressed() {
-	serial.write(255);
+	serial.write(255); // serial write the brightness.
  }
 
 
 function draw() {
-  translate(width/2, height);
-  background(0);
-  const count = 10
-  const offset = frameCount % (400 / count);
+  translate(width/2, height); // translate the center of canvas to the mid bottom
+  background(0); // set backgroud to black
+  const count = 10; // number of semicircle
+  const offset = frameCount % (400 / count); // offset the semicircle to diffuse
+  // loop to draw multiple semicircle
   for(let i = 0; i < count + 10; i++){
     strokeWeight(max((count - i) / 10, 0.15));
     arc(0, 0, offset + 400 / count * i, offset + 400 / count * i, PI, 0);
   }
+  // rotate the canvas according to the arduino data
   rotate(-(dataarray[0] * (PI/180)));
   strokeWeight(2);
+  // store the distance from arduino data
   distance = dataarray[1];
+  // constrain the distance to maximum of 33
   distance = constrain(distance, 0, 33);
+  // draw the line according to the distance
   line(0, 0, distance*10, 0);
+  // change the stroke color if distance too close
   if (distance <= 10) {
     stroke(color(255, 0, 0));
-
   }else{
+    // change back if distance is far
     stroke(color(0, 255, 0));
   }
 }
